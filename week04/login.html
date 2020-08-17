@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <title>登入頁面</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-align: center;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .form-signin .checkbox {
+            font-weight: 400;
+        }
+
+        .form-signin .form-control {
+            position: relative;
+            box-sizing: border-box;
+            height: auto;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .form-signin .form-control:focus {
+            z-index: 2;
+        }
+
+        .form-signin input[type="email"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .form-signin input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <form @submit.prevent="signin" id="app" class="form-signin">
+        <h1 class="h3 mb-3 font-weight-normal">請登入</h1>
+        <label for="inputEmail" class="sr-only">請填入信箱</label>
+        <input v-model="user.email" type="email" id="inputEmail" class="form-control" placeholder="請填入信箱" required=""
+            autofocus="">
+        <label for="inputPassword" class="sr-only">請填入密碼</label>
+        <input v-model="user.password" type="password" id="inputPassword" class="form-control" placeholder="請填入密碼"
+            required="">
+        <!-- <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" value="remember-me"> Remember me
+            </label>
+        </div> -->
+        <button class="btn btn-lg btn-primary btn-block" type="submit">登入</button>
+        <p class="mt-5 mb-3 text-muted">© 2018-2020</p>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.0/axios.min.js'></script>
+    <script>
+
+        new Vue({
+            el: '#app',
+            data: {
+                api: 'https://course-ec-api.hexschool.io/api/',
+                user: {
+                    email: '',
+                    password: '',
+                },
+                token: '',
+                UUID: '32c5e68b-1e9e-4952-8652-a8fceca2d54f',
+                loading: true
+            },
+            methods: {
+                signin() {
+                    const apiSingup = this.api + 'auth/login';
+                    // POST api/auth/login
+                    // email	string	required	電子信箱。
+                    // password	string	required	密碼。
+                    console.log(apiSingup);
+                    axios.post(apiSingup, this.user)
+                        .then(({ data }) => {
+                            console.log('signin', data);
+                            const { token, expired } = data;
+                            // token名稱 = ${token}
+                            // 進入頁面需要認證取出這個名稱 
+                            document.cookie = `token=${token}; expires=${new Date(expired * 1000)}; path=/`;
+                            window.location = './products.html';
+                        }).catch(error => console.log(error))
+                }
+            }
+
+        })
+    </script>
+</body>
+
+</html>

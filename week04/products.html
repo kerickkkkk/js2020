@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <title>產品頁面</title>
+</head>
+
+<body>
+    <div id="app" class="container mt-3">
+        <div class="text-right mb-3">
+            <button class="btn btn-primary" data-toggle="modal" @click="openModal('new')">建立新的產品</button>
+        </div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th width="120">分類</th>
+                    <th>產品名稱</th>
+                    <th width="100">原價</th>
+                    <th width="100">售價</th>
+                    <th width="100">是否啟用</th>
+                    <th width="120">編輯</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in productLists" :key="item.id">
+                    <td>{{item.category}}</td>
+                    <td>{{item.title}}</td>
+                    <td>{{item.origin_price}}</td>
+                    <td>{{item.price}}</td>
+                    <td :class="{'text-success': item.enabled}">{{item.enabled ? '啟用' :'未啟用'}}</td>
+                    <td>
+                        <div class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#productModal"
+                            @click="openModal('edit', item)">編輯</div>
+                        <div class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#delProductModal"
+                            @click="openModal('delete' , item)">刪除</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分頁在此 -->
+        <pagination :page="pagination" @e-change-page="getCurrentPage"></pagination>
+        <!-- productModal -->
+        <div id="productModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">{{modalTitle}}</h5>
+                        <button @click="cancelTempProduct" type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <!-- <input @change="uploadFile" type="file" ref="file" > -->
+                                <template v-for="n in 5">
+                                    <div class="form-group">
+                                        <label :for=`uploadImg${n}`></label>
+                                        <input :id=`uploadImg${n}` type="text" class="form-control" placeholder="請輸入圖片連結"
+                                            v-model=tempProduct.imageUrl[n-1]>
+                                    </div>
+                                    <img :src="tempProduct.imageUrl[n-1]" class="img-fluid" alt="圖片顯示位置">
+                                </template>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="form-group">
+                                    <label for="title" class="mb-2">標題</label>
+                                    <input type="text" class="form-control" id="title" placeholder="請輸入標題"
+                                        v-model="tempProduct.title">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="category" class="mb-2">分類</label>
+                                        <input v-model="tempProduct.category" type="text" class="form-control"
+                                            id="category">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="unit" class="mb-2">單位</label>
+                                        <input v-model="tempProduct.unit" type="text" class="form-control" id="unit">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="origin_price" class="mb-2">原價</label>
+                                        <input v-model="tempProduct.origin_price" placeholder="請輸入原價" type="number"
+                                            class="form-control" id="origin_price">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="price" class="mb-2">售價</label>
+                                        <input v-model="tempProduct.price" placeholder="請輸入售價" type="number"
+                                            class="form-control" id="price">
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="form-group">
+                                    <label for="description" class="mb-2">產品描述</label>
+                                    <textarea v-model="tempProduct.description" type="text" class="form-control"
+                                        id="description" placeholder="請輸入產品描述"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="content" class="mb-2">說明內容</label>
+                                    <textarea v-model="tempProduct.content" type="text" class="form-control"
+                                        id="content" placeholder="請輸入說明內容"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input v-model="tempProduct.enabled" class="form-check-input" type="checkbox"
+                                            id="enabled">
+                                        <label class="form-check-label mb-2" for="enabled">
+                                            是否啟用
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button @click="cancelTempProduct" type="button" class="btn btn-sm  btn-secondary"
+                            data-dismiss="modal">取消</button>
+                        <button @click="saveProduct" type="button" class="btn btn-sm  btn-primary">確認</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- delProductModal -->
+        <div id="delProductModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title text-white" id="exampleModalLabel">刪除產品</h5>
+                        <button @click="cancelTempProduct" type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        是否刪除 <span class="text-danger">{{tempProduct.title}}</span> 商品(刪除後將無法恢復)。
+                    </div>
+                    <div class="modal-footer">
+                        <button @click="cancelTempProduct" type="button" class="btn btn-sm  btn-secondary"
+                            data-dismiss="modal">取消</button>
+                        <button @click="deleteProduct" type="button" class="btn btn-sm  btn-danger">確認刪除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.0/axios.min.js'></script>
+    <script src="./components/pagination.js"></script>
+    <script>
+
+        new Vue({
+            el: '#app',
+            data: {
+                // 登入 api 用
+                api: 'https://course-ec-api.hexschool.io/api/',
+                user: {
+                    email: '',
+                    password: '',
+                },
+                token: '',
+                UUID: '32c5e68b-1e9e-4952-8652-a8fceca2d54f',
+                loading: true,
+                //產品
+                productLists: [],
+                tempProduct: {
+                    imageUrl: []
+                },
+                isNew: false,
+                // 分頁參數
+                // page	optional	integer 頁次
+                // paged	optional	integer 每頁顯示數量
+                // orderBy	optional	string 目標欄位
+                // sort	optional	string 排序方式
+                pageParam: {
+                    page: 1,
+                    paged: 5,
+                },
+                pagination: {}
+
+            },
+            computed: {
+                modalTitle() {
+                    return this.isNew ? '新增產品' : '編輯產品'
+                }
+            },
+            methods: {
+                //如果沒有 token 就返回首頁
+                checkLoginStatus() {
+                    //取得當前 token 對應 login page  token 名稱
+                    const checkToken = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+
+                    // 檢查 checkToken 是否為空 空則導回首頁
+                    if (checkToken === '') {
+                        alert('no right return to home page');
+                        window.location = './login.html';
+                    }
+
+                    //檢查 api 是否還是有效
+
+                    const apiCheck = `${this.api}auth/check`;
+                    //設定 Bearer token
+                    axios.defaults.headers.common.Authorization = `Bearer ${checkToken}`;
+                    axios.post(apiCheck, { 'api_token': checkToken })
+                        .then(res => {
+                            // console.log("res", res.data.success)
+                            // api 失效就導向首頁
+                            if (!res.data.success) {
+                                console.log('token 已失效');
+                                window.location = './login.html';
+                            }
+                        })
+                        .catch(err => console.log(err))
+                    // 確認通過檢查 token 寫入
+                    this.token = checkToken;
+
+                },
+                // 管理者產品列表
+                getProducts() {
+                    const apiGetProducts = `${this.api}${this.UUID}/admin/ec/products`;
+                    // GET api/{uuid}/admin/ec/products
+
+
+                    axios.defaults.headers.common.Authorization = `Bearer ${this.token}`;
+                    //帶參數兩種方式:
+                    // 使用 params 
+                    // ?XX=OO
+                    axios.get(apiGetProducts, { params: this.pageParam })
+                        .then(({ data }) => {
+                            console.log('data', data.data, 'meta', data.meta.pagination);
+                            this.productLists = data.data;
+                            this.pagination = data.meta.pagination;
+                        }).catch(error => console.log(error))
+
+                },
+                //產品相關
+                //modal 集中控制 增刪修
+                openModal(isNew, item) {
+                    switch (isNew) {
+                        case 'new':
+                            this.cancelTempProduct()
+                            this.isNew = true;
+                            $('#productModal').modal('show');
+                            break;
+                        case 'edit':
+                            this.tempProduct = { ...item };
+                            this.isNew = false;
+                            $('#productModal').modal('show');
+                            break;
+                        case 'delete':
+                            this.tempProduct = { ...item };
+                            $('#delProductModal').modal('show');
+                            break;
+                        default:
+                            console.log('沒東西');
+                            break;
+                    }
+
+                },
+                saveProduct() {
+                    console.log(123);
+                    let httpMethod = 'post';
+                    // 一小時內打 200次請求會出現 429 錯誤
+                    // const corsUrl = "https://cors-anywhere.herokuapp.com/";
+                    let apiUrl = '';
+                    // POST api/{uuid}/admin/ec/product
+                    apiUrl = `${this.api}${this.UUID}/admin/ec/product`;
+
+                    // if (this.isNew === true) {
+                    //     // let timeStamp = new Date().getTime();
+                    //     // this.tempProduct.id = timeStamp;
+                    //     // this.productLists.push(this.tempProduct);
+                    // } else {
+                    //     // const index = this.productLists.findIndex(ele => ele.id === this.tempProduct.id);
+                    //     // this.productLists[index] = this.tempProduct;
+                    // }
+                    if (!this.isNew) {
+                        httpMethod = 'patch';
+                        apiUrl = `${this.api}${this.UUID}/admin/ec/product/${this.tempProduct.id}`;
+                    }
+                    console.log('add', apiUrl);
+                    axios.defaults.headers.common.Authorization = `Bearer ${this.token}`;
+                    console.log('watchPrar', this.tempProduct);
+                    axios[httpMethod](`${apiUrl}`, this.tempProduct)
+                        .then(res => {
+                            console.log('pass edit or add', res);
+                            // this.productLists = data.data;
+                            this.getProducts();
+                        }).catch(error => console.log('error', error))
+                        .finally(() => {
+                            this.cancelTempProduct();
+                            $('#productModal').modal('hide');
+                        })
+
+
+
+
+                },
+                deleteProduct() {
+                    const apiDeleteProduct = `${this.api}${this.UUID}/admin/ec/product/${this.tempProduct.id}`;
+                    // DELETE api/{uuid}/admin/ec/product/{id}
+                    axios.defaults.headers.common.Authorization = `Bearer ${this.token}`;
+                    axios.delete(apiDeleteProduct)
+                        .then(res => {
+                            console.log('res delete', res);
+                            this.getProducts();
+                        }).catch(error => console.log('error', error.message))
+                        .finally(() => {
+                            this.cancelTempProduct();
+                            $('#delProductModal').modal('hide');
+                        })
+                    // const index = this.productLists.findIndex(ele => ele.id === this.tempProduct.id);
+                    // this.productLists.splice(index, 1);
+
+                },
+                cancelTempProduct() {
+                    this.tempProduct = {
+                        imageUrl: []
+                    }
+                },
+                // uploadFile(){
+                //     const file = this.$refs.file.files[0]
+                //     console.log(file);
+                //     const formData = new FormData();
+                //     formData.append('file', file);
+                //     const apiStorage = `${this.api}${this.UUID}/admin/storage`;
+                //     // POST api/{uuid}/admin/storage
+                //     axios.defaults.headers.common.Authorization = `Bearer ${this.token}`;
+                //     axios.post(apiStorage, formData)
+                //         .then(res => {
+                //             console.log(res);
+                //         }).catch(error => console.log('error', error.message))
+                //         .finally(() => {})
+                // },
+                
+                /////////////////////////////////
+                getCurrentPage(val) {
+                    console.log('nowPage', val);
+                    this.pageParam.page = val;
+                    this.getProducts();
+                }
+
+            },
+            created() {
+                this.checkLoginStatus();
+            },
+            mounted() {
+                this.getProducts();
+            }
+        })
+    </script>
+</body>
+
+</html>
