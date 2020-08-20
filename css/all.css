@@ -1,0 +1,11 @@
+/* 讓非 a button 樣式的可以不被點擊 */
+.disabledNonBtn {
+    pointer-events: none;
+    opacity: .5;
+}
+
+/* 解決 input type = number 的上下按鈕顯示 */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}

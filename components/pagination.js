@@ -1,11 +1,9 @@
-
-
 Vue.component('pagination', {
     template: `
     <nav>
         <ul class="pagination">
             <li @click.prevent="changePage(page.current_page -1)"
-                :class="{disabled: page.current_page <= 1 }"
+                :class="{disabledNonBtn: page.current_page <= 1 }"
                 class="page-item">
                 <a class="page-link" href="javascript:;">
                     Previous
@@ -20,7 +18,7 @@ Vue.component('pagination', {
                 </a>
             </li>
             <li @click="changePage(page.current_page + 1)"
-                :class=" {disabled: page.current_page >= page.total_pages}"
+                :class=" {disabledNonBtn: page.current_page >= page.total_pages}"
                 class="page-item">
                 <a class="page-link" href="javascript:;">
                     Next
@@ -32,6 +30,7 @@ Vue.component('pagination', {
     props: ['page'],
     methods: {
         changePage(page) {
+            console.log('pagination cmp');
             this.$emit('e-change-page', page);
         }
     }
