@@ -1,0 +1,21 @@
+{
+    // 如果沒有提示 要先打 ""
+  // 關掉
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  //如果可以就自動修復 可以從 problem看
+  "eslint.autoFixOnSave": true,
+  //error 才會出 但開啟的話 warning 也會出
+  "eslint.alwaysShowStatus": true,
+  // 針對 js 的部分 如果是 sass 是要用 stylint 處理
+  "eslint.options": {
+    "extensions": ["html", ".js", ".vue"]
+  },
+  "eslint.validate": [
+    { "language": "html", "autoFix": true },
+    { "language": "javascript", "autoFix": true },
+    { "language": "vue", "autoFix": true }
+  ]
+}
