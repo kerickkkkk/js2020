@@ -1,17 +1,42 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">
-        Home
-      </router-link> |
-      <router-link to="/about">
-        About
-      </router-link>
+    <div class="vld-parent">
+      <loading
+        :active.sync="isLoading"
+      />
+      <div id="nav">
+        <router-link to="/">
+          Home
+        </router-link> |
+        <router-link to="/about">
+          About
+        </router-link>
+      </div>
+      <router-view />
     </div>
-    <router-view />
   </div>
 </template>
-
+<script>
+export default {
+  data () {
+    return {
+      isLoading: false
+    }
+  },
+  mounted () {
+    this.getData()
+  },
+  methods: {
+    getData () {
+      console.log(process.env.APIPATH, process.env.UUID)
+      this.$http.get(`${process.env.VUE_APP_APIPATH}/${process.env.VUE_APP_UUID}`)
+        .then(data =>
+          console.log(data)
+        )
+    }
+  }
+}
+</script>
 <style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
