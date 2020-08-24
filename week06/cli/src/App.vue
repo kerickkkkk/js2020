@@ -4,14 +4,7 @@
       <loading
         :active.sync="isLoading"
       />
-      <div id="nav">
-        <router-link to="/">
-          Home
-        </router-link> |
-        <router-link to="/about">
-          About
-        </router-link>
-      </div>
+
       <router-view />
     </div>
   </div>
@@ -23,13 +16,16 @@ export default {
       isLoading: false
     }
   },
+  created () {
+    console.log(`${process.env.VUE_APP_APIPATH}/${process.env.VUE_APP_UUID}`)
+  },
   mounted () {
     this.getData()
   },
   methods: {
     getData () {
-      console.log(process.env.APIPATH, process.env.UUID)
-      this.$http.get(`${process.env.VUE_APP_APIPATH}/${process.env.VUE_APP_UUID}`)
+      // console.log(process.env.APIPATH, process.env.UUID)
+      this.$http.get(`${process.env.VUE_APP_APIPATH}/${process.env.VUE_APP_UUID}/ec/products`)
         .then(data =>
           console.log(data)
         )

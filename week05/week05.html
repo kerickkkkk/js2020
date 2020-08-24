@@ -19,7 +19,7 @@
 
 <body>
     <div id="app">
-        <div id="app" class="container">
+        <div id="app" class="container" v-cloak >
 
             <loading :active="loading.fullScreen"></loading>
 
@@ -369,7 +369,7 @@
 
         Vue.filter('thousands-separator', val => {
             //toString undefined 會報錯誤
-            let res =  (val+'').split('.') ;
+            let res = (val + '').split('.');
             res[0] = res[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             return res.join('.');
         });
