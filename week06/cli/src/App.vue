@@ -17,7 +17,7 @@ export default {
     }
   },
   created () {
-    console.log(`${process.env.VUE_APP_APIPATH}/${process.env.VUE_APP_UUID}`)
+
   },
   mounted () {
     this.getData()

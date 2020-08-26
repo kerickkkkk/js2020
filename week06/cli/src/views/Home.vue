@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <h2>這是前台</h2>
     <div id="nav">
       <router-link to="/">
         Home
@@ -17,7 +18,6 @@
         後台登入頁面
       </router-link>
     </div>
-    <h2>這是首頁</h2>
     <router-view />
   </div>
 </template>
